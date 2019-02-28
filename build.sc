@@ -339,6 +339,7 @@ def generateDependenciesFile(scalaVersion: String,
     .mkString("\n")
 
   println(s"Writing $dest")
+  mkdir(dir)
   write(dest, content.getBytes("UTF-8"))
 
   dir
