@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#SCALA_VERSION="2.11.12"
+SCALA_VERSION="2.12.8"
+AMMONITE_VERSION="1.6.3-5-c25dc3aa"
+#AMMONITE_VERSION="1.6.3"
+
+coursier launch "com.lihaoyi:ammonite_${SCALA_VERSION}:${AMMONITE_VERSION}" -M ammonite.Main -- $*
+
