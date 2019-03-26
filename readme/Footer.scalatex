@@ -93,7 +93,7 @@
         monorepo (monorepi?) codebase
       @li
         Yang Bo from ThoughtWorks created
-        @link("an sbt plug-in", "https://github.com/ThoughtWorksInc/sbt-ammonite-classpath")
+        @lnk("an sbt plug-in", "https://github.com/ThoughtWorksInc/sbt-ammonite-classpath")
         to export the classpath of an sbt project to Ammonite Script.
       @li
         @link("Elastic", "https://www.elastic.co/")
@@ -123,12 +123,27 @@
 
 
   @sect{Changelog}
+    @sect{1.6.5}
+      @ul
+        @li
+          Don't keep resolutions involving snapshot artifacts or version
+          intervals in the resolution cache of Ammonite
+        @li
+          Switch to coursier @code{1.1.0-M13}
+        @li
+          Fix various issues with class-based wrapper (@code{--class-based})
+    @sect{1.6.4}
+      @ul
+        @li
+          Don't print things marked as private
+        @li
+          Replace Scalaj-HTTP with Requests-Scala as bundled HTTP library
     @sect{1.6.3}
       @ul
         @li
           Fix some regressions in stty handling, preventing Ctrl-C to interrupt
-	  user code, or making running sub-commands from the Ammonite prompt
-	  seem buggy.
+          user code, or making running sub-commands from the Ammonite prompt
+          seem buggy.
     @sect{1.6.2}
       @ul
         @li
