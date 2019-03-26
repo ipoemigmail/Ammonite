@@ -203,6 +203,19 @@ object EvaluatorTests extends TestSuite{
         res5: Int = 2
       """)
     }
+    'nestedImports - {
+      check.session("""
+        @ class Foo { object values { def a = "a" }; override def toString = "Foo" }
+        defined class Foo
+
+        @ val foo = new Foo; import foo.values._
+        foo: Foo = Foo
+        import foo.values._
+
+        @ val a0 = a
+        a0: String = "a"
+      """)
+    }
     'multistatement{
       check.session(s"""
         @ ;1; 2L; '3';
@@ -335,6 +348,22 @@ object EvaluatorTests extends TestSuite{
         @ val `//` = 123
         `//`: Int = 123
 
+      """)
+    }
+    'referenceTraitFromPreviousCommand - {
+      // When class-based wrapping is enabled, the second command references a trait from the
+      // first one, and this case has to be handled by the "used earlier definitions" mechanism.
+      check.session("""
+        @ trait A; class X(x: Int) extends A { override def toString = s"X($x)" }
+        defined trait A
+        defined class X
+
+        @ class Z[T <: A](t: T) { override def toString = s"Z($t)" }; val z1 = new Z(new X(7))
+        defined class Z
+        z1: Z[X] = Z(X(7))
+
+        @ val z2 = new Z(new X(7))
+        z2: Z[X] = Z(X(7))
       """)
     }
   }
