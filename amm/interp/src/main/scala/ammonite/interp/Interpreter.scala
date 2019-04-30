@@ -3,7 +3,7 @@ package ammonite.interp
 import java.io.{File, OutputStream, PrintStream}
 import java.util.regex.Pattern
 
-import ammonite.interp.Preprocessor.CodeWrapper
+import ammonite.interp.CodeWrapper
 
 import scala.collection.mutable
 
@@ -39,8 +39,8 @@ class Interpreter(val printer: Printer,
                   verboseOutput: Boolean = true,
                   getFrame: () => Frame,
                   val createFrame: () => Frame,
-                  replCodeWrapper: Preprocessor.CodeWrapper,
-                  scriptCodeWrapper: Preprocessor.CodeWrapper,
+                  replCodeWrapper: CodeWrapper,
+                  scriptCodeWrapper: CodeWrapper,
                   alreadyLoadedDependencies: Seq[coursier.Dependency])
   extends ImportHook.InterpreterInterface{ interp =>
 
@@ -125,9 +125,9 @@ class Interpreter(val printer: Printer,
     ) match{
       case Res.Success(_) => None
       case Res.Skip => None
-      case r @ Res.Exception(t, s) => Some(r, watchedFiles)
-      case r @ Res.Failure(s) => Some(r, watchedFiles)
-      case r @ Res.Exit(_) => Some(r, watchedFiles)
+      case r @ Res.Exception(t, s) => Some((r, watchedFiles.toSeq))
+      case r @ Res.Failure(s) => Some((r, watchedFiles.toSeq))
+      case r @ Res.Exit(_) => Some((r, watchedFiles.toSeq))
     }
   }
 
@@ -199,7 +199,7 @@ class Interpreter(val printer: Printer,
           hookedStmts.append(currentStmt)
       }
     }
-    (hookedStmts, importTrees)
+    (hookedStmts.toSeq, importTrees.toSeq)
   }
 
   def resolveImportHooks(importTrees: Seq[ImportTree],
@@ -616,7 +616,7 @@ class Interpreter(val printer: Printer,
             },
           verbose = verboseOutput,
           output = printer.errStream,
-          hooks = resolutionHooks
+          hooks = resolutionHooks.toSeq
         )match{
           case Right((canBeCached, loaded)) =>
             val loadedSet = loaded.toSet

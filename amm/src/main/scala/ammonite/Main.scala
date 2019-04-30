@@ -3,8 +3,7 @@ package ammonite
 import java.io.{InputStream, OutputStream, PrintStream}
 import java.nio.file.NoSuchFileException
 
-import ammonite.interp.{Interpreter, Preprocessor}
-
+import ammonite.interp.{CodeClassWrapper, CodeWrapper, Interpreter, Preprocessor}
 import ammonite.runtime.{Frame, Storage}
 import ammonite.main._
 import ammonite.repl.Repl
@@ -66,8 +65,8 @@ case class Main(predefCode: String = "",
                 verboseOutput: Boolean = true,
                 remoteLogging: Boolean = true,
                 colors: Colors = Colors.Default,
-                replCodeWrapper: Preprocessor.CodeWrapper = Preprocessor.CodeWrapper,
-                scriptCodeWrapper: Preprocessor.CodeWrapper = Preprocessor.CodeWrapper,
+                replCodeWrapper: CodeWrapper = CodeWrapper,
+                scriptCodeWrapper: CodeWrapper = CodeWrapper,
                 alreadyLoadedDependencies: Seq[coursier.Dependency] =
                   Defaults.alreadyLoadedDependencies()){
 
@@ -195,7 +194,7 @@ case class Main(predefCode: String = "",
           warmupThread.start()
 
           val exitValue = Res.Success(repl.run())
-          (exitValue.map(repl.beforeExit), repl.interp.watchedFiles)
+          (exitValue.map(repl.beforeExit), repl.interp.watchedFiles.toSeq)
         }
     }
   }
@@ -211,7 +210,7 @@ case class Main(predefCode: String = "",
     instantiateInterpreter() match{
       case Right(interp) =>
         val result = main.Scripts.runScript(wd, path, interp, scriptArgs)
-        (result, interp.watchedFiles)
+        (result, interp.watchedFiles.toSeq)
       case Left(problems) => problems
     }
   }
@@ -223,7 +222,7 @@ case class Main(predefCode: String = "",
     instantiateInterpreter() match{
       case Right(interp) =>
         val res = interp.processExec(code, 0, () => ())
-        (res, interp.watchedFiles)
+        (res, interp.watchedFiles.toSeq)
       case Left(problems) => problems
     }
   }
@@ -403,9 +402,9 @@ class MainRunner(cliConfig: Cli.Config,
 
     val codeWrapper =
       if (cliConfig.classBased)
-        Preprocessor.CodeClassWrapper
+        CodeClassWrapper
       else
-        Preprocessor.CodeWrapper
+        CodeWrapper
 
     Main(
       cliConfig.predefCode,
